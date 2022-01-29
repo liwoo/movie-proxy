@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="SwaggerSettings">
+    <option name="localHubAddress" value="http://localhost:5011/swagger/v1/swagger.json" />
+  </component>
+</project>

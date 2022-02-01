@@ -1,41 +1,60 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
-name: Build and deploy container app to Azure Web App - movie-proxy
+name: .NET
 
 on:
   push:
-    branches:
-      - master
-  workflow_dispatch:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
 
 jobs:
   build:
-    runs-on: 'ubuntu-latest'
+    name: Build and Test Project
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v2
-
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v1
-
-    - name: Log in to registry
-      uses: docker/login-action@v1
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
       with:
-        registry: https://index.docker.io/v1/
-        username: ${{ secrets.AzureAppService_ContainerUsername_fdde66b572dc4476b1c17fc407832e34 }}
-        password: ${{ secrets.AzureAppService_ContainerPassword_2dd464cba06b4ae09fd7ad3494d661a7 }}
-
-    - name: Build and push container image to registry
-      uses: docker/build-push-action@v2
-      with:
-        push: true
-        tags: index.docker.io/${{ secrets.AzureAppService_ContainerUsername_fdde66b572dc4476b1c17fc407832e34 }}/jeremiahchienda/movie-proxy:${{ github.sha }}
-        file: ./Dockerfile
-
+        dotnet-version: 6.0.x
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build --no-restore
+    - name: Test
+      run: dotnet test --no-build --verbosity normal
+      
+  push_to_registry:
+    name: Push Docker image to Docker Hub
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      
+      - name: Log in to Docker Hub
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+        with:
+          images: jeremiahchienda/movie-proxy
+      
+      - name: Build and push Docker image
+        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+        with:
+          context: ./MovieProxy/
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
   deploy:
     runs-on: ubuntu-latest
-    needs: build
+    needs: push_to_registry
+    name: Deploy to Azure
     environment:
       name: 'production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
@@ -47,5 +66,6 @@ jobs:
       with:
         app-name: 'movie-proxy'
         slot-name: 'production'
-        publish-profile: ${{ secrets.AzureAppService_PublishProfile_7903192920014d46b7552c61ea50592a }}
-        images: 'index.docker.io/${{ secrets.AzureAppService_ContainerUsername_fdde66b572dc4476b1c17fc407832e34 }}/jeremiahchienda/movie-proxy:${{ github.sha }}'
+        publish-profile: ${{ secrets.AZURE_SERVICE_PUBLISH_PROFILE }}
+        images: 'index.docker.io/${{ secrets.DOCKER_USERNAME }}/jeremiahchienda/movie-proxy:ma'
+

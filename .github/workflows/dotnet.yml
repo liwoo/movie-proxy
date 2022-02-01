@@ -66,3 +66,4 @@ jobs:
           publish-profile: ${{ secrets.AZURE_SERVICE_PUBLISH_PROFILE }}
           # Enter an existing Slot other than the Production slot
           slot-name: 'production'
+          images: 'registry.hub.docker.com/jeremiahchienda/movie-proxy:master'

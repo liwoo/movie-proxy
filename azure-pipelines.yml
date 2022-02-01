@@ -33,9 +33,12 @@ stages:
       displayName: "Running the build"
       steps:
       - task: DotNetCoreCLI@2
-        displayName: ".NET Tests"
         inputs:
-          command: "run"
+          command: 'restore'
+          feedsToUse: 'select'
+      - task: DotNetCoreCLI@2
+        inputs:
+          command: 'build'
     
     # This stage builds the docker image, and publishes it to
     # Azure Container Registry

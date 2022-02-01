@@ -1,0 +1,63 @@
+# Trigger this pipeline on all branches
+trigger:
+  batch: true
+  branches:
+    include:
+    - "*"
+
+# Run on the latest ubuntu instance
+# Depending on the machines you're running, you might want to
+# switch this to another value, like 'windows-latest'
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  # This turns off the .NET telemetry. You can remove it if you're
+  # okay with the .NET SDK sending telemetry data back to windows.
+  DOTNET_CLI_TELEMETRY_OPTOUT: 1
+  
+  # This is the name of the service connection to the container registry
+  # you defined earlier.
+  CONTAINER_REGISTRY_STRING: dockerhub
+  # This string is the repository name you want your image to have
+  # you can specify any name, and it will be created in the registry.
+  CONTAINER_REPOSITORY_STRING: movieproxy
+
+
+stages:
+  # This stage runs the "dotnet test" command
+  - stage: Build
+    displayName: Testing the build runs
+    jobs:
+    - job: buildRun
+      displayName: "Running the build"
+      steps:
+      - task: DotNetCoreCLI@2
+        displayName: ".NET Tests"
+        inputs:
+          command: "run"
+    
+    # This stage builds the docker image, and publishes it to
+    # Azure Container Registry
+  - stage: Deploying
+    displayName: "Deploying code to production"
+    # This only runs the task if we're on the master branch, and we've succeeded so far
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+    jobs:
+      - job: BuildImageAndPush
+        steps:
+        - task: DotNetCoreCLI@2
+          displayName: "Publish"
+          inputs:
+            command: "publish"
+            zipAfterPublish: false
+            arguments: -c=Release o=build
+        - task: Docker@2
+          displayName: Build docker image
+          inputs:
+            command: buildAndPush
+            containerRegistry: $(CONTAINER_REGISTRY_STRING)
+            repository: $(CONTAINER_REPOSITORY_STRING)
+            tags: |
+              $(Build.BuildId)
+              latest

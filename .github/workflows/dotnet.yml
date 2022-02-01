@@ -51,7 +51,18 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-      - name: curl
-        uses: wei/curl@master
+      
+  deploy_azure:
+    runs-on: ubuntu-latest
+    name: Push to Azure Web App
+    needs: push_to_registry
+    steps:
+      - name: Azure WebApp
+        uses: Azure/webapps-deploy@v2
         with:
-          args: -X POST https://$movie-proxy:csBLsw1yrPrCCXm11SykwtqEmcT6P20L6vDZ6pJnJHAbPsrwP2G97Khk2uFR@movie-proxy.scm.azurewebsites.net/docker/hook
+          # Name of the Azure Web App
+          app-name: 'movie-proxy'
+          # Applies to Web Apps(Windows and Linux) and Web App Containers(linux). Multi container scenario not supported. Publish profile (*.publishsettings) file contents with Web Deploy secrets
+          publish-profile: ${{ secrets.AZURE_SERVICE_PUBLISH_PROFILE }}
+          # Enter an existing Slot other than the Production slot
+          slot-name: 'production'

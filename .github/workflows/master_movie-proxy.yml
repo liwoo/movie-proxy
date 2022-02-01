@@ -42,7 +42,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
         with:
-          images: jeremiahchienda/movie-proxy
+          images: '${{ secrets.DOCKER_USERNAME }}/movie-proxy'
       
       - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
@@ -67,5 +67,5 @@ jobs:
         app-name: 'movie-proxy'
         slot-name: 'production'
         publish-profile: ${{ secrets.AZURE_SERVICE_PUBLISH_PROFILE }}
-        images: 'index.docker.io/${{ secrets.DOCKER_USERNAME }}/jeremiahchienda/movie-proxy:master'
+        images: '${{ secrets.DOCKER_USERNAME }}/movie-proxy:master'
 

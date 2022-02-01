@@ -84,18 +84,35 @@ public class ImdbMovieService : IMovieService
         var movieCollectionResponse = await FetchGenericResponse<MovieCollectionResponse>(endpoint);
 
         if (movieCollectionResponse?.MovieResults == null) return Enumerable.Empty<PartialMovie>();
-        var moviesWithImages =  Enumerable.Empty<PartialMovie>().ToList();
 
-        foreach (var movieResult in movieCollectionResponse.MovieResults)
+        var moviesWithImages = Enumerable.Empty<PartialMovie>().ToList();
+        //chunk movie results into groups of 5
+        var movieChunks = movieCollectionResponse.MovieResults.Chunk(5);
+        foreach (var chunk in movieChunks)
         {
-            var image = await FetchMovieImage(movieResult?.ImdbId ?? "some-id");
-            var movie = new PartialMovie(movieResult?.Title ?? "Some Title", image, movieResult?.ImdbId ?? "some-id");
-            moviesWithImages.Add(movie);
+            //run in parallel to fetch images
+            var tasks = chunk.Select(async movie =>
+            {
+                try
+                {
+                    await Task.Delay(TimeSpan.FromSeconds(1.5));
+                    var image = await FetchMovieImage(movie?.ImdbId ?? "some-image");
+                    var movieWithImage = new PartialMovie(movie?.Title ?? "some-title", image, movie?.ImdbId ?? "some-id");
+                    moviesWithImages.Add(movieWithImage);
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e, "Failed to fetch image for movie {Movie}", movie);
+                }
+            });
+            
+            await Task.WhenAll(tasks);
         }
+
 
         return moviesWithImages;
     }
-    
+
     public async Task<IEnumerable<PartialMovie>> GetPopularMovies()
     {
         return await FetchMovieCollection("?type=get-popular-movies&page=1&year=2022");

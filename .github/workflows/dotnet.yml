@@ -54,4 +54,4 @@ jobs:
       - name: curl
         uses: wei/curl@master
         with:
-          args: https://$movie-proxy:csBLsw1yrPrCCXm11SykwtqEmcT6P20L6vDZ6pJnJHAbPsrwP2G97Khk2uFR@movie-proxy.scm.azurewebsites.net/docker/hook
+          args: -X POST https://$movie-proxy:csBLsw1yrPrCCXm11SykwtqEmcT6P20L6vDZ6pJnJHAbPsrwP2G97Khk2uFR@movie-proxy.scm.azurewebsites.net/docker/hook

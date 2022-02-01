@@ -51,19 +51,3 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-      
-  deploy_azure:
-    runs-on: ubuntu-latest
-    name: Push to Azure Web App
-    needs: push_to_registry
-    steps:
-      - name: Azure WebApp
-        uses: Azure/webapps-deploy@v2
-        with:
-          # Name of the Azure Web App
-          app-name: 'movie-proxy'
-          # Applies to Web Apps(Windows and Linux) and Web App Containers(linux). Multi container scenario not supported. Publish profile (*.publishsettings) file contents with Web Deploy secrets
-          publish-profile: ${{ secrets.AZURE_SERVICE_PUBLISH_PROFILE }}
-          # Enter an existing Slot other than the Production slot
-          slot-name: 'production'
-          images: 'jeremiahchienda/movie-proxy:master'

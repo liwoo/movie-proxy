@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace MovieProxy;
 
-interface IMovieService
+internal interface IMovieService
 {
     public Task<IEnumerable<PartialMovie>> GetPopularMovies();
     public Task<IEnumerable<PartialMovie>> GetRecentlyAddedMovies();
@@ -83,8 +83,8 @@ public class ImdbMovieService : IMovieService
     {
         var movieCollectionResponse = await FetchGenericResponse<MovieCollectionResponse>(endpoint);
 
-        if (movieCollectionResponse?.MovieResults == null) return new List<PartialMovie>() { };
-        var moviesWithImages = new List<PartialMovie>() { };
+        if (movieCollectionResponse?.MovieResults == null) return Enumerable.Empty<PartialMovie>();
+        var moviesWithImages =  Enumerable.Empty<PartialMovie>().ToList();
 
         foreach (var movieResult in movieCollectionResponse.MovieResults)
         {
@@ -95,6 +95,7 @@ public class ImdbMovieService : IMovieService
 
         return moviesWithImages;
     }
+    
     public async Task<IEnumerable<PartialMovie>> GetPopularMovies()
     {
         return await FetchMovieCollection("?type=get-popular-movies&page=1&year=2022");

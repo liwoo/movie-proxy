@@ -1,4 +1,7 @@
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
 using MovieProxy;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,11 +17,11 @@ app.UseSwagger();
 app.UseSwaggerUI();
 
 app.MapGet("/api/popular-movies",
-    async (IMovieService movieService) => await movieService.GetPopularMovies());
+    async (int? page, IMovieService movieService) => await movieService.GetPopularMovies(page));
 app.MapGet("/api/recent-movies",
-    async (IMovieService movieService) => await movieService.GetRecentlyAddedMovies());
+    async (int? page, IMovieService movieService) => await movieService.GetRecentlyAddedMovies(page));
 app.MapGet("/api/random-movies",
-    async (IMovieService movieService) => await movieService.GetRandomMovies());
+    async (int? page, IMovieService movieService) => await movieService.GetRandomMovies(page));
 
 app.MapGet("/", () => "Welcome to MovieProxy")
     .ExcludeFromDescription();

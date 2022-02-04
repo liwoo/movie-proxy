@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Components.Web;
 
 namespace MovieProxy;

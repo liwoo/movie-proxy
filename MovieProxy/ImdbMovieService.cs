@@ -1,17 +1,21 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace MovieProxy;
 
 internal interface IMovieService
 {
-    public Task<IEnumerable<PartialMovie>> GetPopularMovies();
-    public Task<IEnumerable<PartialMovie>> GetRecentlyAddedMovies();
-    public Task<IEnumerable<PartialMovie>> GetRandomMovies();
+    public Task<IEnumerable<PartialMovie>> GetPopularMovies(int? page);
+    public Task<IEnumerable<PartialMovie>> GetRecentlyAddedMovies(int? page);
+    public Task<IEnumerable<PartialMovie>> GetRandomMovies(int? page);
 }
 
 internal record MovieCollectionResponse()
@@ -113,18 +117,18 @@ public class ImdbMovieService : IMovieService
         return moviesWithImages;
     }
 
-    public async Task<IEnumerable<PartialMovie>> GetPopularMovies()
+    public async Task<IEnumerable<PartialMovie>> GetPopularMovies(int? page = 1)
     {
-        return await FetchMovieCollection("?type=get-popular-movies&page=1&year=2022");
+        return await FetchMovieCollection($"?type=get-popular-movies&page={page}&year=2022");
     }
 
-    public async Task<IEnumerable<PartialMovie>> GetRecentlyAddedMovies()
+    public async Task<IEnumerable<PartialMovie>> GetRecentlyAddedMovies(int? page = 1)
     {
-        return await FetchMovieCollection("?type=get-recently-added-movies&page=2");
+        return await FetchMovieCollection($"?type=get-recently-added-movies&page={page}");
     }
 
-    public async Task<IEnumerable<PartialMovie>> GetRandomMovies()
+    public async Task<IEnumerable<PartialMovie>> GetRandomMovies(int? page = 1)
     {
-        return await FetchMovieCollection("?type=get-random-movies&page=1");
+        return await FetchMovieCollection($"?type=get-random-movies&page={page}");
     }
 }

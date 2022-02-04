@@ -16,6 +16,8 @@ internal interface IMovieService
     public Task<IEnumerable<PartialMovie>> GetPopularMovies(int? page);
     public Task<IEnumerable<PartialMovie>> GetRecentlyAddedMovies(int? page);
     public Task<IEnumerable<PartialMovie>> GetRandomMovies(int? page);
+    public Task<IEnumerable<PartialMovie>> GetUpcomingMovies(int? page);
+    public Task<IEnumerable<PartialMovie>> GetTrendingMovies(int? page);
 }
 
 internal record MovieCollectionResponse()
@@ -30,7 +32,7 @@ internal record MovieItemResponse()
     [JsonPropertyName("imdb_id")] public string? ImdbId { get; init; }
 }
 
-internal record MovieImageResponse(string Poster);
+internal record MovieImageResponse(string Poster, string Fanart);
 
 public class ImdbMovieService : IMovieService
 {
@@ -80,7 +82,7 @@ public class ImdbMovieService : IMovieService
     {
         var endpoint = $"?type=get-movies-images-by-imdb&imdb={imdbId}";
         var imageResponse = await FetchGenericResponse<MovieImageResponse>(endpoint);
-        return imageResponse?.Poster ?? _config.GetValue<string>("DefaultImage");
+        return imageResponse?.Fanart ?? _config.GetValue<string>("DefaultImage");
     }
 
     private async Task<IEnumerable<PartialMovie>> FetchMovieCollection(string endpoint)
@@ -130,5 +132,15 @@ public class ImdbMovieService : IMovieService
     public async Task<IEnumerable<PartialMovie>> GetRandomMovies(int? page = 1)
     {
         return await FetchMovieCollection($"?type=get-random-movies&page={page}");
+    }
+
+    public async Task<IEnumerable<PartialMovie>> GetUpcomingMovies(int? page = 1)
+    {
+        return await FetchMovieCollection($"?type=get-upcoming-movies&page={page}");
+    }
+
+    public async Task<IEnumerable<PartialMovie>> GetTrendingMovies(int? page = 1)
+    {
+        return await FetchMovieCollection($"?type=get-trending-movies&page={page}");
     }
 }

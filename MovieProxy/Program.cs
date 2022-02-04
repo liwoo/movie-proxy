@@ -22,6 +22,10 @@ app.MapGet("/api/recent-movies",
     async (int? page, IMovieService movieService) => await movieService.GetRecentlyAddedMovies(page));
 app.MapGet("/api/random-movies",
     async (int? page, IMovieService movieService) => await movieService.GetRandomMovies(page));
+app.MapGet("/api/trending-movies",
+    async (int? page, IMovieService movieService) => await movieService.GetTrendingMovies(page));
+app.MapGet("/api/upcoming-movies",
+    async (int? page, IMovieService movieService) => await movieService.GetUpcomingMovies(page));
 
 app.MapGet("/", () => "Welcome to MovieProxy")
     .ExcludeFromDescription();

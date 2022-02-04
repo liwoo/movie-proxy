@@ -32,7 +32,7 @@ internal record MovieItemResponse()
     [JsonPropertyName("imdb_id")] public string? ImdbId { get; init; }
 }
 
-internal record MovieImageResponse(string Poster, string Fanart);
+internal record MovieImageResponse(string? Fanart);
 
 public class ImdbMovieService : IMovieService
 {
@@ -80,9 +80,12 @@ public class ImdbMovieService : IMovieService
 
     private async Task<string> FetchMovieImage(string imdbId)
     {
+        //TODO: Add null responses of image properties to test cases
         var endpoint = $"?type=get-movies-images-by-imdb&imdb={imdbId}";
         var imageResponse = await FetchGenericResponse<MovieImageResponse>(endpoint);
-        return imageResponse?.Fanart ?? _config.GetValue<string>("DefaultImage");
+        return string.IsNullOrEmpty(imageResponse?.Fanart)
+            ? _config.GetValue<string>("DefaultImage")
+            : imageResponse.Fanart;
     }
 
     private async Task<IEnumerable<PartialMovie>> FetchMovieCollection(string endpoint)
@@ -103,7 +106,8 @@ public class ImdbMovieService : IMovieService
                 {
                     await Task.Delay(TimeSpan.FromSeconds(1.5));
                     var image = await FetchMovieImage(movie?.ImdbId ?? "some-image");
-                    var movieWithImage = new PartialMovie(movie?.Title ?? "some-title", image, movie?.ImdbId ?? "some-id");
+                    var movieWithImage =
+                        new PartialMovie(movie?.Title ?? "some-title", image, movie?.ImdbId ?? "some-id");
                     moviesWithImages.Add(movieWithImage);
                 }
                 catch (Exception e)
@@ -111,7 +115,7 @@ public class ImdbMovieService : IMovieService
                     _logger.LogError(e, "Failed to fetch image for movie {Movie}", movie);
                 }
             });
-            
+
             await Task.WhenAll(tasks);
         }
 

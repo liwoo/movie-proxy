@@ -8,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IMovieService, ImdbMovieService>();
-builder.Services.AddResponseCaching();
+builder.Services.AddMemoryCache();
 var apiInfo = new ApiAInfo("MovieProxy", "v1", "https://docs.microsoft.com/en-us/aspnet/core/tutorials/web-api-help-pages");
 
 
@@ -26,6 +26,8 @@ app.MapGet("/api/trending-movies",
     async (int? page, IMovieService movieService) => await movieService.GetTrendingMovies(page));
 app.MapGet("/api/upcoming-movies",
     async (int? page, IMovieService movieService) => await movieService.GetUpcomingMovies(page));
+app.MapGet("/api/movies/{id}",
+    async (string id, IMovieService movieService) => await movieService.GetMovieDetails(id));
 
 app.MapGet("/", () => "Welcome to MovieProxy")
     .ExcludeFromDescription();

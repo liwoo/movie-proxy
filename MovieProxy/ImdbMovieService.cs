@@ -34,7 +34,7 @@ internal record MovieItemResponse()
     [JsonPropertyName("imdb_id")] public string? ImdbId { get; init; }
 }
 
-internal record MovieImageResponse(string? Fanart);
+internal record MovieImageResponse(string? Poster);
 
 internal record MovieDetailsResponse()
 {
@@ -101,9 +101,9 @@ public class ImdbMovieService : IMovieService
         //TODO: Add null responses of image properties to test cases
         var endpoint = $"?type=get-movies-images-by-imdb&imdb={imdbId}";
         var imageResponse = await FetchGenericResponse<MovieImageResponse>(endpoint);
-        return string.IsNullOrEmpty(imageResponse?.Fanart)
+        return string.IsNullOrEmpty(imageResponse?.Poster)
             ? _config.GetValue<string>("DefaultImage")
-            : imageResponse.Fanart;
+            : imageResponse.Poster;
     }
 
     private async Task<IEnumerable<PartialMovie>> FetchMovieCollection(string endpoint, int? chunksToFetch = -1)

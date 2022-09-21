@@ -8,7 +8,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Swashbuckle.AspNetCore" Version="6.1.0" />
+      <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+    </ItemGroup>
+    
+    <ItemGroup>
+        <InternalsVisibleTo Include="IntegrationTest" />
     </ItemGroup>
 
 </Project>

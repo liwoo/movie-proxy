@@ -1,5 +1,5 @@
 
-# iMDB Movie Proxiy
+# iMDB Movie Proxy
 
 This is a simple API that wraps around the publically available [iMDB Movies API](https://rapidapi.com/amrelrafie/api/movies-tvshows-data-imdb/). I use it to power a [Showmax Clone](showmax-clone ) App I build in Flutter for my [Youtube Channel](https://www.youtube.com/channel/UCNEXAX15mO3rsVQQQve6Iog). I use [.NET 6 Minimal APIs](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/minimal-apis?view=aspnetcore-6.0) for this project - enjoy it!
 
